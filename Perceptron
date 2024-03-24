@@ -1,0 +1,59 @@
+import numpy as np
+
+# Función logística
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+# Derivada de la función logística
+def sigmoid_derivative(x):
+    return x * (1 - x)
+
+# Entradas para la compuerta AND
+inputs = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+
+# Objetivos (salidas esperadas) para la compuerta AND
+targets = np.array([[1], [0], [0], [0]])
+
+# Pesos y sesgos iniciales
+# La inicialización aquí puede necesitar ajustes dependiendo del problema
+weights_input_hidden = np.random.uniform(size=(2, 2))
+bias_hidden = np.random.uniform(size=(1, 2))
+weights_hidden_output = np.random.uniform(size=(2, 1))
+bias_output = np.random.uniform(size=(1, 1))
+
+# Hiperparámetros
+learning_rate = 0.5
+epochs = 10000
+
+# Entrenamiento
+for epoch in range(epochs):
+    # Pase hacia adelante (forward pass)
+    hidden_inputs = np.dot(inputs, weights_input_hidden) + bias_hidden
+    hidden_outputs = sigmoid(hidden_inputs)
+
+    final_inputs = np.dot(hidden_outputs, weights_hidden_output) + bias_output
+    final_outputs = sigmoid(final_inputs)
+
+    # Error total
+    total_error = np.sum(0.5 * (targets - final_outputs) ** 2)
+
+    # Backpropagation
+    output_errors = targets - final_outputs
+    output_gradients = output_errors * sigmoid_derivative(final_outputs)
+
+    hidden_errors = np.dot(output_gradients, weights_hidden_output.T)
+    hidden_gradients = hidden_errors * sigmoid_derivative(hidden_outputs)
+
+    # Actualización de pesos y sesgos
+    weights_hidden_output += np.dot(hidden_outputs.T, output_gradients) * learning_rate
+    bias_output += np.sum(output_gradients, axis=0) * learning_rate
+
+    weights_input_hidden += np.dot(inputs.T, hidden_gradients) * learning_rate
+    bias_hidden += np.sum(hidden_gradients, axis=0) * learning_rate
+
+    # Error cada 1000 epochs
+    if epoch % 1000 == 0:
+        print(f"Epoch {epoch}: Error = {total_error}")
+
+print("\nSalida final después de entrenamiento:")
+print(final_outputs)
